@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saifa shop - ศูนย์รวมสคริปต์และโปรแกรมเสริมเกมอัตโนมัติ 24 ชม.</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Prompt & Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        saifa: {
+                            dark: '#040711',
+                            card: '#0b1121',
+                            surface: '#0f172a',
+                            border: '#1e293b',
+                            electric: '#00d2ff',
+                            blue: '#0284c7',
+                            cyan: '#22d3ee',
+                            danger: '#ef4444'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #040711;
+            color: #f8fafc;
+            background-image: 
+                radial-gradient(circle at 15% 10%, rgba(0, 210, 255, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(2, 132, 199, 0.14) 0%, transparent 45%),
+                linear-gradient(rgba(0, 210, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 210, 255, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .electric-glow {
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.3);
+        }
+
+        .electric-border:hover {
+            border-color: #00d2ff;
+            box-shadow: 0 0 28px rgba(0, 210, 255, 0.25);
+        }
+
+        /* ==================== ANIMATIONS ==================== */
+        /* 1. Shake & Red Glow Animation (เงินไม่พอ) */
+        @keyframes shakeHard {
+            0%, 100% { transform: translateX(0); }
+            15% { transform: translateX(-10px) rotate(-1deg); }
+            30% { transform: translateX(10px) rotate(1deg); }
+            45% { transform: translateX(-8px); }
+            60% { transform: translateX(8px); }
+            75% { transform: translateX(-4px); }
+            90% { transform: translateX(4px); }
+        }
+
+        .animate-insufficient {
+            animation: shakeHard 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.55) !important;
+        }
+
+        /* 2. Lightning Ring Spin & Pulse (โหลดสายฟ้าตอนกดซื้อ) */
+        @keyframes spinLightning {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulseBolt {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px #00d2ff); }
+            50% { transform: scale(1.25); filter: drop-shadow(0 0 25px #22d3ee); }
+        }
+
+        .lightning-ring {
+            border: 4px solid rgba(0, 210, 255, 0.15);
+            border-top: 4px solid #00d2ff;
+            border-right: 4px solid #38bdf8;
+            animation: spinLightning 0.7s linear infinite;
+        }
+
+        .lightning-bolt-pulse {
+            animation: pulseBolt 0.6s ease-in-out infinite;
+        }
+
+        /* 3. Pop-in Bounce & Electric Flash (ซื้อสำเร็จ / เงินเข้า) */
+        @keyframes popSuccess {
+            0% { transform: scale(0.7); opacity: 0; }
+            60% { transform: scale(1.06); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .animate-pop-success {
+            animation: popSuccess 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes balanceFlash {
+            0% { transform: scale(1); color: #34d399; }
+            40% { transform: scale(1.3); color: #00d2ff; text-shadow: 0 0 15px #00d2ff; }
+            100% { transform: scale(1); color: #34d399; }
+        }
+
+        .animate-balance-up {
+            animation: balanceFlash 0.8s ease-out;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #040711;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00d2ff;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-cyan-500 selection:text-slate-950">
+
+    <!-- Lightning Sparks Canvas Overlay (สำหรับเอฟเฟกต์ประกายสายฟ้าตอนซื้อสำเร็จ) -->
+    <canvas id="lightning-canvas" class="fixed inset-0 pointer-events-none z-[120]"></canvas>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-20 right-4 z-[110] flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- Purchase Processing Overlay (วงแหวนสายฟ้าขณะประมวลผลการซื้อ) -->
+    <div id="processing-overlay" class="hidden fixed inset-0 z-[95] bg-[#040711]/85 backdrop-blur-md flex flex-col items-center justify-center p-4">
+        <div class="relative w-28 h-28 flex items-center justify-center">
+            <div class="absolute inset-0 rounded-full lightning-ring"></div>
+            <div class="absolute inset-2 rounded-full border-2 border-dashed border-cyan-400/40 animate-spin" style="animation-direction: reverse; animation-duration: 2s;"></div>
+            <i class="fa-solid fa-bolt text-4xl text-cyan-300 lightning-bolt-pulse"></i>
+        </div>
+        <h3 class="mt-6 text-xl font-bold text-cyan-300 tracking-wide">กำลังปลดล็อก License Key...</h3>
+        <p class="text-xs text-slate-400 mt-1">ระบบกำลังตรวจสอบสต็อกและส่งมอบสินค้าอัตโนมัติ</p>
+    </div>
+
+    <!-- Insufficient Funds Alert Modal (เด้งพร้อมอนิเมชันสั่น + แสงสีแดง) -->
+    <div id="insufficient-modal" class="hidden fixed inset-0 z-[90] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div id="insufficient-card" class="bg-[#13090c] border-2 border-rose-500 rounded-3xl max-w-md w-full p-6 sm:p-8 text-center space-y-5 relative">
+            <button onclick="closeModal('insufficient-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="w-16 h-16 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center mx-auto text-3xl border border-rose-500/40 shadow-[0_0_25px_rgba(239,68,68,0.4)]">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 class="text-2xl font-bold text-rose-400">ยอดเงินไม่เพียงพอ!</h3>
+                <p id="insufficient-detail" class="text-sm text-slate-300 mt-2">เครดิตของคุณไม่พอสำหรับการสั่งซื้อรายการนี้</p>
+            </div>
+            <div class="bg-black/40 border border-rose-500/30 rounded-2xl p-4 flex justify-around text-sm">
+                <div>
+                    <div class="text-xs text-slate-400">ยอดเงินปัจจุบัน</div>
+                    <div id="insuf-current-bal" class="font-bold text-white text-base">0.00 ฿</div>
+                </div>
+                <div class="border-r border-rose-500/20"></div>
+                <div>
+                    <div class="text-xs text-slate-400">ราคาสินค้า</div>
+                    <div id="insuf-prod-price" class="font-bold text-rose-400 text-base">0.00 ฿</div>
+                </div>
+            </div>
+            <div class="flex gap-3 pt-1">
+                <button onclick="closeModal('insufficient-modal')" class="flex-1 py-3 rounded-xl font-semibold bg-white/10 hover:bg-white/15 text-slate-200 text-sm transition">
+                    ยกเลิก
+                </button>
+                <button onclick="closeModal('insufficient-modal'); switchView('topup');" class="flex-1 py-3 rounded-xl font-bold bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white text-sm shadow-lg shadow-rose-600/30 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-bolt"></i> เติมเงินทันที
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-40 bg-[#040711]/90 backdrop-blur-md border-b border-saifa-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer group" onclick="switchView('store')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center electric-glow group-hover:scale-105 transition-transform">
+                        <i class="fa-solid fa-bolt text-slate-950 text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-xl tracking-wider bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-500 bg-clip-text text-transparent">Saifa shop</span>
+                        <span class="block text-[10px] text-cyan-400/80 -mt-1 font-mono tracking-widest">SCRIPT & CHEAT STORE</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation Menu -->
+                <div class="hidden md:flex items-center space-x-2">
+                    <button onclick="switchView('store')" id="nav-store" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium transition-all bg-cyan-500/15 text-cyan-300 border border-cyan-400/30">
+                        <i class="fa-solid fa-terminal mr-1.5"></i> ร้านค้าสคริปต์
+                    </button>
+                    <button onclick="switchView('topup')" id="nav-topup" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-300 hover:bg-white/5 transition-all">
+                        <i class="fa-solid fa-wallet mr-1.5"></i> เติมเงิน
+                    </button>
+                    <button onclick="switchView('history')" id="nav-history" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-300 hover:bg-white/5 transition-all">
+                        <i class="fa-solid fa-clock-rotate-left mr-1.5"></i> ประวัติของฉัน
+                    </button>
+                    <!-- Admin Only Button -->
+                    <button onclick="switchView('admin')" id="nav-admin" class="hidden nav-btn px-4 py-2 rounded-xl text-sm font-medium text-amber-400 hover:bg-amber-500/10 border border-amber-500/30 transition-all">
+                        <i class="fa-solid fa-shield-halved mr-1.5"></i> จัดการหลังบ้าน (Admin)
+                    </button>
+                </div>
+
+                <!-- User Info / Auth Buttons -->
+                <div class="flex items-center gap-3">
+                    <!-- Logged Out State -->
+                    <div id="auth-buttons" class="flex items-center gap-2">
+                        <button onclick="openAuthModal('login')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-200 hover:bg-white/10 transition">
+                            เข้าสู่ระบบ
+                        </button>
+                        <button onclick="openAuthModal('register')" class="px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-lg shadow-cyan-500/25 transition">
+                            สมัครสมาชิก
+                        </button>
+                    </div>
+
+                    <!-- Logged In State -->
+                    <div id="user-panel" class="hidden flex items-center gap-3">
+                        <div onclick="switchView('topup')" title="คลิกเพื่อเติมเงิน" class="cursor-pointer bg-saifa-card border border-saifa-border hover:border-cyan-400 px-3 py-1.5 rounded-xl flex items-center gap-2 transition">
+                            <div class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs">
+                                <i class="fa-solid fa-coins"></i>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-[10px] text-slate-400 leading-none">เครดิตคงเหลือ</div>
+                                <div id="nav-balance" class="text-sm font-bold text-emerald-400 leading-tight font-mono">0.00 ฿</div>
+                            </div>
+                            <i class="fa-solid fa-circle-plus text-cyan-400 text-xs ml-1"></i>
+                        </div>
+
+                        <div class="flex items-center gap-2 bg-saifa-card border border-saifa-border px-3 py-1.5 rounded-xl">
+                            <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 text-slate-950 flex items-center justify-center text-xs font-bold">
+                                <i class="fa-solid fa-user-secret"></i>
+                            </div>
+                            <div class="hidden sm:block">
+                                <div id="nav-username" class="text-xs font-semibold text-white">Username</div>
+                                <div id="nav-role-badge" class="text-[10px] text-cyan-400">Member</div>
+                            </div>
+                            <button onclick="logout()" title="ออกจากระบบ" class="ml-1 p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 transition">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Bottom/Sub Navigation -->
+        <div class="md:hidden flex items-center justify-around border-t border-saifa-border bg-[#070b19] py-2 px-2 overflow-x-auto">
+            <button onclick="switchView('store')" class="mobile-nav-btn flex flex-col items-center px-3 py-1 text-xs text-cyan-400">
+                <i class="fa-solid fa-terminal text-base mb-0.5"></i> ร้านค้า
+            </button>
+            <button onclick="switchView('topup')" class="mobile-nav-btn flex flex-col items-center px-3 py-1 text-xs text-slate-400">
+                <i class="fa-solid fa-wallet text-base mb-0.5"></i> เติมเงิน
+            </button>
+            <button onclick="switchView('history')" class="mobile-nav-btn flex flex-col items-center px-3 py-1 text-xs text-slate-400">
+                <i class="fa-solid fa-clock-rotate-left text-base mb-0.5"></i> ประวัติ
+            </button>
+            <button onclick="switchView('admin')" id="mobile-nav-admin" class="hidden mobile-nav-btn flex flex-col items-center px-3 py-1 text-xs text-amber-400">
+                <i class="fa-solid fa-shield-halved text-base mb-0.5"></i> แอดมิน
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ==================== VIEW 1: STOREFRONT ==================== -->
+        <section id="view-store" class="space-y-8">
+            <!-- Hero Banner -->
+            <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#071329] via-[#0b1d3a] to-[#040914] border border-cyan-500/30 p-6 sm:p-10 electric-glow">
+                <div class="relative z-10 max-w-2xl space-y-4">
+                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-400/30">
+                        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span> UNDETECTED • ระบบส่งคีย์อัตโนมัติ 24 ชั่วโมง
+                    </span>
+                    <h1 class="text-3xl sm:text-5xl font-bold leading-tight">
+                        Saifa shop ศูนย์รวม <br>
+                        <span class="bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-500 bg-clip-text text-transparent">สคริปต์ & โปรแกรมเสริมเกม</span>
+                    </h1>
+                    <p class="text-slate-300 text-sm sm:text-base">
+                        เร็วแรงดั่งสายฟ้า! อัปเดตแพตช์ล่าสุดตลอดเวลา กดซื้อปุ๊บรับ License Key และลิงก์ดาวน์โหลดทันที รองรับพร้อมเพย์และซองอั่งเปา TrueMoney
+                    </p>
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <button onclick="switchView('topup')" class="px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-slate-950 shadow-lg shadow-cyan-500/30 transition flex items-center gap-2">
+                            <i class="fa-solid fa-bolt"></i> เติมเครดิตเลย
+                        </button>
+                        <button onclick="document.getElementById('product-grid').scrollIntoView({behavior:'smooth'})" class="px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-white/15 text-white border border-white/10 transition">
+                            ดูรายการสคริปต์ทั้งหมด
+                        </button>
+                    </div>
+                </div>
+                <!-- Decorative Electric Lightning SVG Graphic -->
+                <div class="hidden lg:block absolute right-8 top-1/2 -translate-y-1/2 opacity-90">
+                    <svg width="260" height="220" viewBox="0 0 260 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="130" cy="110" r="95" stroke="url(#saifaGrad1)" stroke-width="2" stroke-dasharray="10 6"/>
+                        <circle cx="130" cy="110" r="70" fill="url(#saifaGrad2)" fill-opacity="0.3"/>
+                        <path d="M142 35L85 118H132L118 185L175 102H128L142 35Z" fill="url(#boltFill)" stroke="#e0f2fe" stroke-width="2" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="saifaGrad1" x1="35" y1="15" x2="225" y2="205" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#00d2ff"/>
+                                <stop offset="1" stop-color="#0284c7"/>
+                            </linearGradient>
+                            <radialGradient id="saifaGrad2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(130 110) scale(70)">
+                                <stop stop-color="#00d2ff"/>
+                                <stop offset="1" stop-color="#040711" stop-opacity="0"/>
+                            </radialGradient>
+                            <linearGradient id="boltFill" x1="85" y1="35" x2="175" y2="185" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#67e8f9"/>
+                                <stop offset="1" stop-color="#0284c7"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Search & Category Filter Bar -->
+            <div class="flex flex-col md:flex-row gap-4 justify-between items-center bg-saifa-card border border-saifa-border p-4 rounded-2xl">
+                <!-- Categories -->
+                <div id="category-filters" class="flex flex-wrap gap-2 w-full md:w-auto">
+                    <button onclick="filterCategory('ALL')" class="cat-btn active px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-cyan-500 text-slate-950 transition">ทั้งหมด</button>
+                    <button onclick="filterCategory('Auto Farm Script')" class="cat-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white/5 text-slate-300 hover:bg-white/10 transition">สคริปต์ฟาร์มอัตโนมัติ</button>
+                    <button onclick="filterCategory('Aimbot & ESP')" class="cat-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white/5 text-slate-300 hover:bg-white/10 transition">ช่วยเล็ง / มองทะลุ</button>
+                    <button onclick="filterCategory('Executor')" class="cat-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white/5 text-slate-300 hover:bg-white/10 transition">ตัวรัน Executor</button>
+                    <button onclick="filterCategory('Macro & Bypass')" class="cat-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white/5 text-slate-300 hover:bg-white/10 transition">มาโคร & กันแบน</button>
+                </div>
+
+                <!-- Search Input -->
+                <div class="relative w-full md:w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" oninput="renderProducts()" placeholder="ค้นหาชื่อสคริปต์, โปรแกรม, เกม..." class="w-full bg-[#040711] border border-saifa-border focus:border-cyan-400 rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none transition">
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Products injected via JS -->
+            </div>
+        </section>
+
+        <!-- ==================== VIEW 2: TOP-UP SYSTEM ==================== -->
+        <section id="view-topup" class="hidden max-w-4xl mx-auto space-y-6">
+            <div class="text-center space-y-2">
+                <h2 class="text-2xl sm:text-3xl font-bold">ระบบเติมเงินอัตโนมัติ <span class="text-cyan-400">Saifa shop</span></h2>
+                <p class="text-slate-400 text-sm">ยอดเครดิตเข้าบัญชีทันทีหลังทำรายการสำเร็จ พร้อมใช้งาน 24 ชั่วโมง</p>
+            </div>
+
+            <!-- Topup Method Tabs -->
+            <div class="grid grid-cols-2 gap-4 bg-saifa-card p-2 rounded-2xl border border-saifa-border">
+                <button onclick="switchTopupTab('promptpay')" id="tab-promptpay" class="py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-lg transition">
+                    <i class="fa-solid fa-qrcode text-lg"></i> พร้อมเพย์ (PromptPay QR)
+                </button>
+                <button onclick="switchTopupTab('truemoney')" id="tab-truemoney" class="py-3 px-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 text-slate-400 hover:text-white hover:bg-white/5 transition">
+                    <i class="fa-solid fa-envelope-open-text text-lg text-orange-400"></i> ซองอั่งเปา TrueMoney
+                </button>
+            </div>
+
+            <!-- Tab 1: PromptPay Content -->
+            <div id="panel-promptpay" class="bg-saifa-card border border-saifa-border rounded-3xl p-6 sm:p-8 space-y-6">
+                <div class="flex flex-col md:flex-row gap-8 items-center">
+                    <div class="flex-1 space-y-4 w-full">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-cyan-500/15 text-cyan-300 text-xs font-semibold border border-cyan-500/20">
+                            <i class="fa-solid fa-shield-check"></i> รองรับทุกธนาคารในประเทศไทย (ไม่มีค่าธรรมเนียม)
+                        </div>
+                        <h3 class="text-xl font-bold">ระบุจำนวนเงินที่ต้องการเติม</h3>
+                        
+                        <!-- Quick Amount Buttons (50, 100, 300, 500, 1000) -->
+                        <div class="grid grid-cols-5 gap-2">
+                            <button onclick="setPromptPayAmount(50)" class="py-2 rounded-xl bg-white/5 hover:bg-cyan-500/20 border border-saifa-border hover:border-cyan-400 text-xs sm:text-sm font-semibold transition">50 ฿</button>
+                            <button onclick="setPromptPayAmount(100)" class="py-2 rounded-xl bg-white/5 hover:bg-cyan-500/20 border border-saifa-border hover:border-cyan-400 text-xs sm:text-sm font-semibold transition">100 ฿</button>
+                            <button onclick="setPromptPayAmount(300)" class="py-2 rounded-xl bg-white/5 hover:bg-cyan-500/20 border border-saifa-border hover:border-cyan-400 text-xs sm:text-sm font-semibold transition">300 ฿</button>
+                            <button onclick="setPromptPayAmount(500)" class="py-2 rounded-xl bg-white/5 hover:bg-cyan-500/20 border border-saifa-border hover:border-cyan-400 text-xs sm:text-sm font-semibold transition">500 ฿</button>
+                            <button onclick="setPromptPayAmount(1000)" class="py-2 rounded-xl bg-white/5 hover:bg-cyan-500/20 border border-saifa-border hover:border-cyan-400 text-xs sm:text-sm font-semibold transition">1,000 ฿</button>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1.5">จำนวนเงิน (ขั้นต่ำ 10 บาท)</label>
+                            <div class="relative">
+                                <input type="number" id="pp-amount" min="10" value="100" oninput="updateQRDisplay()" class="w-full bg-[#040711] border border-saifa-border focus:border-cyan-400 rounded-xl px-4 py-3 text-lg font-bold text-white font-mono focus:outline-none">
+                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-semibold">บาท (THB)</span>
+                            </div>
+                        </div>
+
+                        <button onclick="confirmPromptPayTopup()" class="w-full py-3.5 rounded-xl font-bold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-circle-check"></i> จำลองการโอนเงินสำเร็จ (รับเครดิตทันที)
+                        </button>
+                    </div>
+
+                    <!-- Simulated Thai QR Payment Card -->
+                    <div class="w-full md:w-72 bg-white text-slate-900 rounded-2xl overflow-hidden shadow-2xl border-4 border-cyan-500 shrink-0">
+                        <div class="bg-[#0c4a6e] text-white py-2.5 px-4 text-center">
+                            <div class="text-xs font-bold tracking-wider">THAI QR PAYMENT</div>
+                            <div class="text-[10px] text-cyan-200">พร้อมเพย์ (PromptPay)</div>
+                        </div>
+                        <div class="p-5 flex flex-col items-center text-center space-y-2.5">
+                            <!-- SVG QR Code Simulation -->
+                            <div class="p-2 border-2 border-slate-200 rounded-xl bg-white">
+                                <svg class="w-36 h-36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="100" height="100" fill="white"/>
+                                    <rect x="8" y="8" width="24" height="24" stroke="#0f172a" stroke-width="4"/>
+                                    <rect x="14" y="14" width="12" height="12" fill="#0f172a"/>
+                                    <rect x="68" y="8" width="24" height="24" stroke="#0f172a" stroke-width="4"/>
+                                    <rect x="74" y="14" width="12" height="12" fill="#0f172a"/>
+                                    <rect x="8" y="68" width="24" height="24" stroke="#0f172a" stroke-width="4"/>
+                                    <rect x="14" y="74" width="12" height="12" fill="#0f172a"/>
+                                    <path d="M40 10H46V16H40V10ZM52 10H58V22H52V10ZM40 24H46V34H40V24ZM10 40H22V46H10V40ZM28 40H34V52H28V40ZM42 42H58V58H42V42ZM66 40H78V46H66V40ZM84 40H90V56H84V40ZM40 66H52V72H40V66ZM58 66H64V82H58V66ZM72 68H90V74H72V68ZM40 80H50V90H40V80ZM72 80H84V90H72V80Z" fill="#0f172a"/>
+                                    <rect x="36" y="42" width="28" height="16" rx="3" fill="#0c4a6e"/>
+                                    <text x="50" y="52" font-size="6" fill="white" text-anchor="middle" font-weight="bold">SAIFA</text>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="text-[11px] text-slate-500">ชื่อบัญชีร้านค้า</div>
+                                <div class="font-bold text-sm text-slate-800">Saifa shop Official</div>
+                                <div id="qr-ref-code" class="text-[10px] font-mono text-slate-400 mt-0.5">REF: SF-884920</div>
+                            </div>
+                            <div class="w-full pt-2 border-t border-slate-200">
+                                <div class="text-xs text-slate-500">ยอดชำระเงิน</div>
+                                <div id="qr-display-amount" class="text-2xl font-extrabold text-sky-700 font-mono">100.00 ฿</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: TrueMoney Gift Voucher Content -->
+            <div id="panel-truemoney" class="hidden bg-saifa-card border border-saifa-border rounded-3xl p-6 sm:p-8 space-y-6">
+                <div class="flex flex-col sm:flex-row items-center gap-4 pb-4 border-b border-saifa-border">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white text-2xl shrink-0 shadow-lg shadow-orange-500/20">
+                        <i class="fa-solid fa-gift"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-orange-400">เติมเงินผ่านซองอั่งเปา TrueMoney Wallet</h3>
+                        <p class="text-xs sm:text-sm text-slate-400">สร้างซองอั่งเปาแบบ "แบ่งจำนวนเงินเท่ากัน" กรอกจำนวนคนรับ 1 คน แล้วนำลิงก์มาวางด้านล่าง</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between items-center mb-1.5">
+                            <label class="text-xs text-slate-300">ลิงก์ซองอั่งเปา TrueMoney</label>
+                            <button onclick="generateDemoVoucherLink()" class="text-xs text-cyan-400 hover:text-cyan-300 underline flex items-center gap-1 font-semibold">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> สร้างลิงก์ซองทดสอบ (สุ่ม 50-500 ฿)
+                            </button>
+                        </div>
+                        <input type="text" id="tm-voucher-url" placeholder="https://gift.truemoney.com/campaign/?v=xxxxxxxxxxxxxxxxxxxx" class="w-full bg-[#040711] border border-saifa-border focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-white font-mono placeholder-slate-600 focus:outline-none">
+                    </div>
+
+                    <div class="bg-orange-500/10 border border-orange-500/20 rounded-xl p-3 text-xs text-orange-200 flex items-start gap-2.5">
+                        <i class="fa-solid fa-circle-info mt-0.5 text-orange-400"></i>
+                        <span>ระบบป้องกันการเติมซองซ้ำอัตโนมัติ: สามารถกดปุ่ม <b>"สร้างลิงก์ซองทดสอบ"</b> ด้านบนแล้วกดรับเงินเพื่อทดสอบระบบได้ทันที</span>
+                    </div>
+
+                    <button onclick="redeemTrueMoneyVoucher()" class="w-full py-3.5 rounded-xl font-bold bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white shadow-lg shadow-orange-500/25 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-bolt"></i> ตรวจสอบซองและรับเครดิตทันที
+                    </button>
+                </div>
+            </div>
+
+            <!-- User Topup History -->
+            <div class="bg-saifa-card border border-saifa-border rounded-3xl p-6 space-y-4">
+                <h3 class="font-bold text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-receipt text-cyan-400"></i> ประวัติการเติมเงินของคุณ
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-saifa-border text-xs text-slate-400">
+                                <th class="py-3 px-4">วัน-เวลา</th>
+                                <th class="py-3 px-4">ช่องทาง</th>
+                                <th class="py-3 px-4">รายละเอียด</th>
+                                <th class="py-3 px-4 text-center">สถานะ</th>
+                                <th class="py-3 px-4 text-right">จำนวนเงิน</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-topup-history-body" class="text-sm divide-y divide-saifa-border/50">
+                            <!-- Rows injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== VIEW 3: PURCHASE HISTORY ==================== -->
+        <section id="view-history" class="hidden max-w-5xl mx-auto space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-bold">ประวัติการสั่งซื้อสคริปต์ & โปรแกรม</h2>
+                    <p class="text-slate-400 text-sm">ตรวจสอบ License Key และลิงก์ดาวน์โหลดที่คุณเคยสั่งซื้อได้ตลอดเวลา</p>
+                </div>
+                <button onclick="switchView('store')" class="px-4 py-2 rounded-xl bg-cyan-500/15 text-cyan-300 border border-cyan-400/30 text-sm font-medium hover:bg-cyan-500/25 transition self-start">
+                    <i class="fa-solid fa-cart-plus mr-1"></i> ซื้อสคริปต์เพิ่ม
+                </button>
+            </div>
+
+            <div id="purchase-history-list" class="space-y-4">
+                <!-- Purchase items injected via JS -->
+            </div>
+        </section>
+
+        <!-- ==================== VIEW 4: ADMIN DASHBOARD (RBAC PROTECTED) ==================== -->
+        <section id="view-admin" class="hidden space-y-8">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-saifa-border pb-4">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Saifa shop Control Panel</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold">ระบบจัดการหลังบ้าน (Admin Dashboard)</h2>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="resetDemoData()" class="px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-medium transition">
+                        <i class="fa-solid fa-rotate mr-1"></i> รีเซ็ตข้อมูลเริ่มต้นระบบ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Summary Stats Cards (4 Cards) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="bg-saifa-card border border-saifa-border p-5 rounded-2xl flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-sack-dollar"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400">ยอดขายรวมทั้งหมด</div>
+                        <div id="admin-stat-sales" class="text-xl font-bold text-emerald-400 font-mono">0.00 ฿</div>
+                    </div>
+                </div>
+                <div class="bg-saifa-card border border-saifa-border p-5 rounded-2xl flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400">สมาชิกทั้งหมด</div>
+                        <div id="admin-stat-users" class="text-xl font-bold text-white">0 คน</div>
+                    </div>
+                </div>
+                <div class="bg-saifa-card border border-saifa-border p-5 rounded-2xl flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400">จำนวนออเดอร์ทั้งหมด</div>
+                        <div id="admin-stat-orders" class="text-xl font-bold text-blue-400">0 รายการ</div>
+                    </div>
+                </div>
+                <div class="bg-saifa-card border border-saifa-border p-5 rounded-2xl flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400">สต็อกคีย์พร้อมขาย</div>
+                        <div id="admin-stat-stock" class="text-xl font-bold text-amber-400">0 คีย์</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Sub-Tabs -->
+            <div class="flex flex-wrap gap-2 border-b border-saifa-border pb-3">
+                <button onclick="switchAdminTab('products')" id="admin-tab-products" class="admin-sub-btn px-4 py-2 rounded-xl text-sm font-bold bg-cyan-500 text-slate-950">
+                    <i class="fa-solid fa-key mr-1.5"></i> จัดการสินค้า & สต็อกคีย์
+                </button>
+                <button onclick="switchAdminTab('users')" id="admin-tab-users" class="admin-sub-btn px-4 py-2 rounded-xl text-sm font-semibold bg-white/5 text-slate-300 hover:bg-white/10">
+                    <i class="fa-solid fa-users-gear mr-1.5"></i> จัดการสมาชิก & เครดิต
+                </button>
+                <button onclick="switchAdminTab('logs')" id="admin-tab-logs" class="admin-sub-btn px-4 py-2 rounded-xl text-sm font-semibold bg-white/5 text-slate-300 hover:bg-white/10">
+                    <i class="fa-solid fa-list-check mr-1.5"></i> ประวัติการขายและเติมเงินทั้งหมด
+                </button>
+            </div>
+
+            <!-- Admin Tab 1: Manage Products & Stock -->
+            <div id="admin-panel-products" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Add New Product Form -->
+                <div class="bg-saifa-card border border-saifa-border p-6 rounded-2xl space-y-4 h-fit">
+                    <h3 class="font-bold text-lg text-cyan-300"><i class="fa-solid fa-plus-circle mr-1.5"></i> เพิ่มสคริปต์ / โปรแกรมใหม่</h3>
+                    <form onsubmit="handleAdminAddProduct(event)" class="space-y-3">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">หมวดหมู่สินค้า</label>
+                            <select id="adm-prod-category" class="w-full bg-[#040711] border border-saifa-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+                                <option value="Auto Farm Script">Auto Farm Script (สคริปต์ฟาร์มอัตโนมัติ)</option>
+                                <option value="Aimbot & ESP">Aimbot & ESP (ช่วยเล็ง / มองทะลุ)</option>
+                                <option value="Executor">Executor (ตัวรันสคริปต์)</option>
+                                <option value="Macro & Bypass">Macro & Bypass (มาโคร & กันแบน)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">ชื่อสคริปต์ / โปรแกรม</label>
+                            <input type="text" id="adm-prod-title" required placeholder="เช่น Saifa Hub V4 - Blox Fruits Auto Farm" class="w-full bg-[#040711] border border-saifa-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">รายละเอียดฟีเจอร์</label>
+                            <textarea id="adm-prod-desc" rows="2" required placeholder="เช่น ฟาร์มเวลตันไว 100% ตีบอสอัตโนมัติ กันแบน" class="w-full bg-[#040711] border border-saifa-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">ราคาขาย (บาท)</label>
+                            <input type="number" id="adm-prod-price" min="1" required placeholder="150" class="w-full bg-[#040711] border border-saifa-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">รายการ License Key / ลิงก์ดาวน์โหลด (บรรทัดละ 1 ชิ้น)</label>
+                            <textarea id="adm-prod-keys" rows="4" required placeholder="SAIFA-KEY-9981-XXXX&#10;SAIFA-KEY-7742-YYYY" class="w-full bg-[#040711] border border-saifa-border rounded-xl px-3 py-2 text-xs font-mono text-cyan-300 focus:outline-none focus:border-cyan-400"></textarea>
+                        </div>
+                        <button type="submit" class="w-full py-2.5 rounded-xl font-bold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 text-sm transition">
+                            บันทึกสินค้าเข้าสู่ร้านค้า
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Product List Table -->
+                <div class="lg:col-span-2 bg-saifa-card border border-saifa-border p-6 rounded-2xl space-y-4">
+                    <h3 class="font-bold text-lg">รายการสินค้าและสต็อกคีย์คงเหลือ</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-saifa-border text-xs text-slate-400">
+                                    <th class="py-3 px-3">หมวดหมู่ / ชื่อสินค้า</th>
+                                    <th class="py-3 px-3">ราคา</th>
+                                    <th class="py-3 px-3">สต็อกคีย์</th>
+                                    <th class="py-3 px-3 text-right">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-products-tbody" class="text-sm divide-y divide-saifa-border/50">
+                                <!-- Injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Tab 2: Manage Users -->
+            <div id="admin-panel-users" class="hidden bg-saifa-card border border-saifa-border p-6 rounded-2xl space-y-4">
+                <h3 class="font-bold text-lg">รายชื่อสมาชิกทั้งหมด (ปรับเพิ่ม/ลดเครดิต หรือเปลี่ยนสิทธิ์)</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-saifa-border text-xs text-slate-400">
+                                <th class="py-3 px-4">ชื่อผู้ใช้ (Username)</th>
+                                <th class="py-3 px-4">สิทธิ์ (Role)</th>
+                                <th class="py-3 px-4">ยอดเงินคงเหลือ</th>
+                                <th class="py-3 px-4 text-right">จัดการเครดิต & สิทธิ์</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-users-tbody" class="text-sm divide-y divide-saifa-border/50">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Admin Tab 3: System Logs -->
+            <div id="admin-panel-logs" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-saifa-card border border-saifa-border p-6 rounded-2xl space-y-4">
+                    <h3 class="font-bold text-lg text-emerald-400"><i class="fa-solid fa-bag-shopping mr-1.5"></i> ประวัติการสั่งซื้อทั้งหมดในระบบ</h3>
+                    <div class="overflow-x-auto max-h-96">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-saifa-border text-xs text-slate-400">
+                                    <th class="py-2 px-3">ลูกค้า</th>
+                                    <th class="py-2 px-3">สินค้า</th>
+                                    <th class="py-2 px-3">คีย์ที่ส่งมอบ</th>
+                                    <th class="py-2 px-3 text-right">ราคา</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-orders-tbody" class="text-xs divide-y divide-saifa-border/50"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-saifa-card border border-saifa-border p-6 rounded-2xl space-y-4">
+                    <h3 class="font-bold text-lg text-cyan-400"><i class="fa-solid fa-money-bill-transfer mr-1.5"></i> ประวัติการเติมเงินทั้งหมดในระบบ</h3>
+                    <div class="overflow-x-auto max-h-96">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-saifa-border text-xs text-slate-400">
+                                    <th class="py-2 px-3">ลูกค้า</th>
+                                    <th class="py-2 px-3">ช่องทาง</th>
+                                    <th class="py-2 px-3">เวลา</th>
+                                    <th class="py-2 px-3 text-right">จำนวนเงิน</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-topups-tbody" class="text-xs divide-y divide-saifa-border/50"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== MODAL 1: LOGIN & REGISTER ==================== -->
+    <div id="auth-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-saifa-card border border-cyan-500/40 rounded-3xl max-w-md w-full p-6 sm:p-8 relative electric-glow">
+            <button onclick="closeModal('auth-modal')" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center mx-auto mb-3 text-slate-950">
+                    <i class="fa-solid fa-bolt text-xl"></i>
+                </div>
+                <h3 id="auth-modal-title" class="text-2xl font-bold">เข้าสู่ระบบ Saifa shop</h3>
+                <p id="auth-modal-subtitle" class="text-xs text-slate-400 mt-1">เข้าสู่ระบบเพื่อสั่งซื้อสคริปต์และจัดการเครดิตของคุณ</p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">ชื่อผู้ใช้ (Username)</label>
+                    <input type="text" id="login-username" required placeholder="กรอกชื่อผู้ใช้" class="w-full bg-[#040711] border border-saifa-border focus:border-cyan-400 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">รหัสผ่าน (Password)</label>
+                    <input type="password" id="login-password" required placeholder="กรอกรหัสผ่าน" class="w-full bg-[#040711] border border-saifa-border focus:border-cyan-400 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                </div>
+                <div class="bg-cyan-500/10 border border-cyan-500/25 rounded-xl p-3 text-xs text-cyan-200 flex items-center justify-between gap-2">
+                    <div>
+                        <i class="fa-solid fa-shield-halved mr-1 text-cyan-400"></i> แอดมินทดสอบ: <b>admin</b> / <b>1234</b>
+                    </div>
+                    <button type="button" onclick="fillAdminDemo()" class="px-2.5 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-semibold border border-cyan-400/30 transition shrink-0">
+                        กรอกอัตโนมัติ
+                    </button>
+                </div>
+                <button type="submit" class="w-full py-3 rounded-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-slate-950 shadow-lg transition">
+                    เข้าสู่ระบบ
+                </button>
+                <p class="text-center text-xs text-slate-400">
+                    ยังไม่มีบัญชีใช่ไหม? <button type="button" onclick="openAuthModal('register')" class="text-cyan-400 hover:underline font-semibold">สมัครสมาชิกใหม่ (เริ่มต้น 0 ฿)</button>
+                </p>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" onsubmit="handleRegister(event)" class="hidden space-y-4">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">ตั้งชื่อผู้ใช้ (Username)</label>
+                    <input type="text" id="reg-username" required minlength="3" placeholder="ภาษาอังกฤษหรือตัวเลข 3 ตัวขึ้นไป" class="w-full bg-[#040711] border border-saifa-border focus:border-cyan-400 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">ตั้งรหัสผ่าน (Password)</label>
+                    <input type="password" id="reg-password" required minlength="4" placeholder="ตั้งรหัสผ่าน 4 ตัวขึ้นไป" class="w-full bg-[#040711] border border-saifa-border focus:border-cyan-400 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">ยืนยันรหัสผ่านอีกครั้ง</label>
+                    <input type="password" id="reg-confirm" required minlength="4" placeholder="กรอกรหัสผ่านอีกครั้ง" class="w-full bg-[#040711] border border-saifa-border focus:border-cyan-400 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                </div>
+                <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-2.5 text-xs text-blue-200 text-center">
+                    สมาชิกใหม่จะได้รับยอดเครดิตเริ่มต้น <b>0.00 ฿</b> (สามารถเติมเงินได้ทันทีหลังสมัคร)
+                </div>
+                <button type="submit" class="w-full py-3 rounded-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-slate-950 shadow-lg transition">
+                    ยืนยันการสมัครสมาชิก
+                </button>
+                <p class="text-center text-xs text-slate-400">
+                    มีบัญชีอยู่แล้ว? <button type="button" onclick="openAuthModal('login')" class="text-cyan-400 hover:underline font-semibold">เข้าสู่ระบบเลย</button>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 2: INSTANT KEY DELIVERY SUCCESS ==================== -->
+    <div id="delivery-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-saifa-card border-2 border-cyan-400/70 rounded-3xl max-w-md w-full p-6 sm:p-8 text-center space-y-5 relative shadow-[0_0_50px_rgba(0,210,255,0.35)] animate-pop-success">
+            <div class="w-16 h-16 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 flex items-center justify-center mx-auto text-3xl shadow-[0_0_25px_rgba(0,210,255,0.4)]">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <div>
+                <span class="text-[11px] font-mono uppercase tracking-widest text-cyan-400">INSTANT DELIVERY COMPLETE</span>
+                <h3 class="text-2xl font-bold text-white mt-0.5">สั่งซื้อสำเร็จ! รับสินค้าทันที</h3>
+                <p id="delivered-product-name" class="text-sm text-cyan-300 font-medium mt-1">ชื่อสินค้า</p>
+            </div>
+
+            <div class="bg-[#040711] border border-saifa-border rounded-2xl p-4 text-left space-y-3">
+                <div>
+                    <div class="text-[11px] text-slate-400">License Key / ลิงก์ดาวน์โหลดโปรแกรม</div>
+                    <div class="flex items-center justify-between gap-2 mt-1.5 bg-saifa-card px-3 py-2.5 rounded-xl border border-cyan-500/40">
+                        <code id="delivered-credentials" class="text-cyan-300 font-mono font-bold text-xs sm:text-sm break-all select-all">SAIFA-KEY-XXXX</code>
+                        <button onclick="copyDeliveredText()" class="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold shrink-0 transition">
+                            <i class="fa-regular fa-copy mr-1"></i> คัดลอกคีย์
+                        </button>
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-400">
+                    * ระบบได้บันทึกคีย์นี้ลงในหน้า <b>"ประวัติของฉัน"</b> เรียบร้อยแล้ว คุณสามารถกลับมาคัดลอกย้อนหลังได้ตลอดเวลา
+                </p>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeModal('delivery-modal'); switchView('history');" class="flex-1 py-3 rounded-xl font-semibold bg-white/10 hover:bg-white/15 text-sm transition">
+                    ไปหน้าประวัติของฉัน
+                </button>
+                <button onclick="closeModal('delivery-modal')" class="flex-1 py-3 rounded-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-slate-950 text-sm transition">
+                    ตกลง
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 3: ADMIN ADD STOCK TO EXISTING PRODUCT ==================== -->
+    <div id="add-stock-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-saifa-card border border-saifa-border rounded-3xl max-w-md w-full p-6 space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold">เพิ่มสต็อก License Key</h3>
+                <button onclick="closeModal('add-stock-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p id="stock-modal-prod-title" class="text-xs text-cyan-400 font-semibold"></p>
+            <input type="hidden" id="stock-modal-prod-id">
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">กรอกรายการคีย์หรือลิงก์สินค้า (บรรทัดละ 1 ชิ้น)</label>
+                <textarea id="stock-modal-textarea" rows="5" placeholder="SAIFA-KEY-1122-AAAA&#10;SAIFA-KEY-3344-BBBB" class="w-full bg-[#040711] border border-saifa-border rounded-xl p-3 text-xs font-mono text-cyan-300 focus:outline-none focus:border-cyan-400"></textarea>
+            </div>
+            <button onclick="confirmAddStock()" class="w-full py-2.5 rounded-xl font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-sm transition">
+                ยืนยันเพิ่มสต็อก
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 4: ADMIN EDIT USER BALANCE ==================== -->
+    <div id="edit-balance-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-saifa-card border border-saifa-border rounded-3xl max-w-sm w-full p-6 space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold">ปรับยอดเครดิตสมาชิก</h3>
+                <button onclick="closeModal('edit-balance-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="text-sm text-slate-300">สมาชิก: <b id="edit-bal-username" class="text-cyan-400"></b></div>
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">กำหนดยอดเงินคงเหลือใหม่ (บาท)</label>
+                <input type="number" id="edit-bal-amount" min="0" step="1" class="w-full bg-[#040711] border border-saifa-border rounded-xl px-4 py-2.5 text-lg font-bold text-emerald-400 font-mono focus:outline-none focus:border-cyan-400">
+            </div>
+            <button onclick="confirmEditUserBalance()" class="w-full py-2.5 rounded-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-sm transition">
+                บันทึกยอดเงินใหม่
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-saifa-border mt-16 py-8 text-center text-xs text-slate-500">
+        <p>© 2026 <span class="text-cyan-400 font-semibold">Saifa shop</span> - ระบบร้านค้าสคริปต์และโปรแกรมเสริมเกมอัตโนมัติ 24 ชั่วโมง</p>
+    </footer>
+
+    <!-- ==================== JAVASCRIPT APPLICATION LOGIC ==================== -->
+    <script>
+        // Storage Keys (เฉพาะของ Saifa shop)
+        const STORAGE_KEYS = {
+            USERS: 'saifa_users_v1',
+            PRODUCTS: 'saifa_products_v1',
+            ORDERS: 'saifa_orders_v1',
+            TOPUPS: 'saifa_topups_v1',
+            CURRENT_USER: 'saifa_current_user_v1'
+        };
+
+        // Initial Mock Data
+        const DEFAULT_USERS = [
+            { username: 'admin', password: '1234', role: 'admin', balance: 9999 }
+        ];
+
+        const DEFAULT_PRODUCTS = [
+            {
+                id: 'sf_prod_1',
+                category: 'Auto Farm Script',
+                title: 'Saifa Hub V4 - สคริปต์ฟาร์มอัตโนมัติ (Blox Fruits / Anime)',
+                desc: 'ฟาร์มเลเวลอัตโนมัติ 1-Max ไวที่สุด ตีบอส ทำเควสครบวงจร ระบบกันแบน 100% รองรับมือถือและ PC',
+                status: 'อัปเดตล่าสุด • ปลอดภัย',
+                price: 150,
+                gradient: 'from-cyan-500 via-sky-600 to-blue-900',
+                keys: [
+                    'SAIFA-HUB4-9921-BLOX-TH',
+                    'SAIFA-HUB4-8834-BLOX-TH',
+                    'SAIFA-HUB4-7710-BLOX-TH'
+                ]
+            },
+            {
+                id: 'sf_prod_2',
+                category: 'Aimbot & ESP',
+                title: 'Saifa Vision Pro - มองทะลุ ESP + ช่วยเล็งเนียน (FPS)',
+                desc: 'แสดงกรอบศัตรู ระยะห่าง เลือด และล็อกเป้าแบบ Smooth ปรับความเนียนได้ ไม่กินสเปคเครื่อง',
+                status: 'Undetected • ปลอดภัย',
+                price: 290,
+                gradient: 'from-blue-600 via-indigo-700 to-slate-900',
+                keys: [
+                    'SF-VISION-PRO-5519-VIP',
+                    'SF-VISION-PRO-6620-VIP'
+                ]
+            },
+            {
+                id: 'sf_prod_3',
+                category: 'Executor',
+                title: 'Saifa Executor X - ตัวรันสคริปต์ระดับ 100% UNC (No Key)',
+                desc: 'รันได้ทุกสคริปต์ลื่นไหลไม่มีหลุด รองรับ Lua เต็มรูปแบบ ใช้งานได้ทั้ง Windows และ Android',
+                status: 'อัปเดตล่าสุด V2.8',
+                price: 199,
+                gradient: 'from-sky-500 via-cyan-700 to-slate-950',
+                keys: [
+                    'EXEC-X-KEY-4412 | https://saifa.shop/dl/exec-x-v28',
+                    'EXEC-X-KEY-9908 | https://saifa.shop/dl/exec-x-v28'
+                ]
+            },
+            {
+                id: 'sf_prod_4',
+                category: 'Macro & Bypass',
+                title: 'Saifa Zero-Recoil & Anti-Ban Spoofer (ถาวร)',
+                desc: 'มาโครคุมปืนนิ่งสนิททุกกระบอก พร้อมระบบ HWID Spoofer ล้างค่าแบนเครื่อง ปลอดภัยสูง',
+                status: 'ปลอดภัย • ใช้งานถาวร',
+                price: 350,
+                gradient: 'from-teal-500 via-emerald-700 to-slate-900',
+                keys: [
+                    'SPOOFER-PERM-2026-8812'
+                ]
+            },
+            {
+                id: 'sf_prod_5',
+                category: 'Auto Farm Script',
+                title: 'Saifa Kaitun Edition - สคริปต์ไก่ตันฟาร์มครบจบในตัว',
+                desc: 'เปิดทิ้งไว้ได้ทั้งคืน ฟาร์มเงิน เก็บผลปีศาจ ทำดาบคู่โอเด้งอัตโนมัติ แจ้งเตือนผ่าน Discord',
+                status: 'อัปเดตล่าสุด • ปลอดภัย',
+                price: 99,
+                gradient: 'from-cyan-600 via-blue-700 to-indigo-950',
+                keys: [
+                    'KAITUN-SF-1001-AUTO',
+                    'KAITUN-SF-1002-AUTO',
+                    'KAITUN-SF-1003-AUTO'
+                ]
+            },
+            {
+                id: 'sf_prod_6',
+                category: 'Aimbot & ESP',
+                title: 'Saifa Private External (Slot จำกัด 10 คน)',
+                desc: 'โปรแกรมเสริมระดับไพรเวท ทำงานภายนอกตัวเกม ปลอดภัยสูงสุดสำหรับสายลงแรงค์',
+                status: 'อัปเดตล่าสุด',
+                price: 590,
+                gradient: 'from-sky-600 via-blue-800 to-slate-950',
+                keys: [] // ตัวอย่างสินค้าหมดสต็อก
+            }
+        ];
+
+        // Global State
+        let currentCategory = 'ALL';
+        let isPurchasing = false; // ป้องกันการกดปุ่มซื้อรัวซ้ำ (Atomic lock)
+
+        // ==================== INITIALIZATION ====================
+        window.onload = function () {
+            initStorage();
+            updateAuthUI();
+            renderProducts();
+            updateQRDisplay();
+            setupLightningCanvas();
+        };
+
+        function initStorage() {
+            if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
+                localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(DEFAULT_USERS));
+            }
+            if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
+                localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(DEFAULT_PRODUCTS));
+            }
+            if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) {
+                localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify([]));
+            }
+            if (!localStorage.getItem(STORAGE_KEYS.TOPUPS)) {
+                localStorage.setItem(STORAGE_KEYS.TOPUPS, JSON.stringify([]));
+            }
+        }
+
+        function resetDemoData() {
+            localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(DEFAULT_USERS));
+            localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(DEFAULT_PRODUCTS));
+            localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify([]));
+            localStorage.setItem(STORAGE_KEYS.TOPUPS, JSON.stringify([]));
+            showToast('รีเซ็ตข้อมูลเริ่มต้นของระบบ Saifa shop เรียบร้อยแล้ว', 'success');
+            updateAuthUI();
+            renderProducts();
+            renderAdminDashboard();
+        }
+
+        // Helpers for LocalStorage
+        const getUsers = () => JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+        const saveUsers = (data) => localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(data));
+        const getProducts = () => JSON.parse(localStorage.getItem(STORAGE_KEYS.PRODUCTS) || '[]');
+        const saveProducts = (data) => localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(data));
+        const getOrders = () => JSON.parse(localStorage.getItem(STORAGE_KEYS.ORDERS) || '[]');
+        const saveOrders = (data) => localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(data));
+        const getTopups = () => JSON.parse(localStorage.getItem(STORAGE_KEYS.TOPUPS) || '[]');
+        const saveTopups = (data) => localStorage.setItem(STORAGE_KEYS.TOPUPS, JSON.stringify(data));
+
+        function getCurrentUser() {
+            const username = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
+            if (!username) return null;
+            return getUsers().find(u => u.username === username) || null;
+        }
+
+        // ==================== LIGHTNING SPARKS CANVAS ANIMATION ====================
+        let sparks = [];
+        let canvasCtx = null;
+
+        function setupLightningCanvas() {
+            const canvas = document.getElementById('lightning-canvas');
+            canvasCtx = canvas.getContext('2d');
+            const resize = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+            resize();
+            window.addEventListener('resize', resize);
+            requestAnimationFrame(animateLightningSparks);
+        }
+
+        function triggerLightningSparks() {
+            const cx = window.innerWidth / 2;
+            const cy = window.innerHeight / 2;
+            const colors = ['#00d2ff', '#38bdf8', '#67e8f9', '#ffffff', '#0284c7'];
+
+            for (let i = 0; i < 65; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 4 + Math.random() * 12;
+                sparks.push({
+                    x: cx,
+                    y: cy,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 1,
+                    decay: 0.015 + Math.random() * 0.02,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: 2 + Math.random() * 3
+                });
+            }
+        }
+
+        function animateLightningSparks() {
+            if (canvasCtx) {
+                canvasCtx.clearRect(0, 0, canvasCtx.canvas.width, canvasCtx.canvas.height);
+                for (let i = sparks.length - 1; i >= 0; i--) {
+                    const p = sparks[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vx *= 0.96;
+                    p.vy *= 0.96;
+                    p.life -= p.decay;
+
+                    if (p.life <= 0) {
+                        sparks.splice(i, 1);
+                        continue;
+                    }
+
+                    canvasCtx.save();
+                    canvasCtx.globalAlpha = p.life;
+                    canvasCtx.strokeStyle = p.color;
+                    canvasCtx.shadowColor = '#00d2ff';
+                    canvasCtx.shadowBlur = 12;
+                    canvasCtx.lineWidth = p.size;
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(p.x, p.y);
+                    // วาดเส้นหักมุมเหมือนประกายสายฟ้า
+                    const midX = p.x - p.vx * 1.5 + (Math.random() - 0.5) * 10;
+                    const midY = p.y - p.vy * 1.5 + (Math.random() - 0.5) * 10;
+                    canvasCtx.lineTo(midX, midY);
+                    canvasCtx.lineTo(p.x - p.vx * 3, p.y - p.vy * 3);
+                    canvasCtx.stroke();
+                    canvasCtx.restore();
+                }
+            }
+            requestAnimationFrame(animateLightningSparks);
+        }
+
+        // ==================== UI NOTIFICATION (TOAST) ====================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const colors = {
+                success: 'bg-emerald-950/95 border-emerald-500 text-emerald-200',
+                error: 'bg-rose-950/95 border-rose-500 text-rose-200',
+                warning: 'bg-amber-950/95 border-amber-500 text-amber-200',
+                info: 'bg-sky-950/95 border-cyan-400 text-cyan-200'
+            };
+            const icons = {
+                success: 'fa-circle-check text-emerald-400',
+                error: 'fa-circle-exclamation text-rose-400',
+                warning: 'fa-triangle-exclamation text-amber-400',
+                info: 'fa-bolt text-cyan-400'
+            };
+
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-xl backdrop-blur-md transition-all duration-300 transform translate-x-0 ${colors[type] || colors.info}`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type] || icons.info} text-lg"></i>
+                <span class="text-xs sm:text-sm font-medium">${message}</span>
+            `;
+
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // ==================== NAVIGATION & VIEWS ====================
+        function switchView(viewName) {
+            const user = getCurrentUser();
+
+            if ((viewName === 'topup' || viewName === 'history') && !user) {
+                showToast('กรุณาเข้าสู่ระบบก่อนใช้งานเมนูนี้', 'warning');
+                openAuthModal('login');
+                return;
+            }
+
+            // Role-Based Access Control (RBAC) for Admin
+            if (viewName === 'admin') {
+                if (!user || user.role !== 'admin') {
+                    showToast('ปฏิเสธการเข้าถึง: เฉพาะแอดมิน (Admin) เท่านั้น', 'error');
+                    return;
+                }
+                renderAdminDashboard();
+            }
+
+            ['store', 'topup', 'history', 'admin'].forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden');
+            });
+
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-cyan-500/15', 'text-cyan-300', 'border', 'border-cyan-400/30');
+                btn.classList.add('text-slate-300');
+            });
+            const activeBtn = document.getElementById(`nav-${viewName}`);
+            if (activeBtn && viewName !== 'admin') {
+                activeBtn.classList.add('bg-cyan-500/15', 'text-cyan-300', 'border', 'border-cyan-400/30');
+                activeBtn.classList.remove('text-slate-300');
+            }
+
+            if (viewName === 'topup') renderUserTopupHistory();
+            if (viewName === 'history') renderPurchaseHistory();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ==================== AUTHENTICATION ====================
+        function openAuthModal(mode = 'login') {
+            document.getElementById('auth-modal').classList.remove('hidden');
+            if (mode === 'login') {
+                document.getElementById('auth-modal-title').textContent = 'เข้าสู่ระบบ Saifa shop';
+                document.getElementById('auth-modal-subtitle').textContent = 'ยินดีต้อนรับเข้าสู่ศูนย์รวมสคริปต์และโปรแกรมเสริมเกม';
+                document.getElementById('login-form').classList.remove('hidden');
+                document.getElementById('register-form').classList.add('hidden');
+            } else {
+                document.getElementById('auth-modal-title').textContent = 'สมัครสมาชิกใหม่';
+                document.getElementById('auth-modal-subtitle').textContent = 'สร้างบัญชีฟรี เริ่มต้นยอดเครดิต 0.00 ฿';
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('register-form').classList.remove('hidden');
+            }
+        }
+
+        function fillAdminDemo() {
+            document.getElementById('login-username').value = 'admin';
+            document.getElementById('login-password').value = '1234';
+            showToast('กรอกข้อมูลบัญชีแอดมินทดสอบแล้ว กดปุ่มเข้าสู่ระบบได้เลย', 'info');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+
+            if (password !== confirm) {
+                showToast('รหัสผ่านทั้งสองช่องไม่ตรงกัน', 'error');
+                return;
+            }
+
+            const users = getUsers();
+            if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+                showToast('ชื่อผู้ใช้นี้ถูกใช้งานแล้ว กรุณาใช้ชื่ออื่น', 'error');
+                return;
+            }
+
+            // สมาชิกทั่วไปเริ่มต้นเงิน 0.00 บาทเสมอ
+            const newUser = {
+                username: username,
+                password: password,
+                role: 'member',
+                balance: 0
+            };
+
+            users.push(newUser);
+            saveUsers(users);
+            localStorage.setItem(STORAGE_KEYS.CURRENT_USER, newUser.username);
+
+            e.target.reset();
+            closeModal('auth-modal');
+            updateAuthUI();
+            showToast(`สมัครสมาชิกสำเร็จ! ยินดีต้อนรับคุณ ${username} (ยอดเงินเริ่มต้น 0.00 ฿)`, 'success');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            const user = getUsers().find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+            if (!user) {
+                showToast('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'error');
+                return;
+            }
+
+            localStorage.setItem(STORAGE_KEYS.CURRENT_USER, user.username);
+            e.target.reset();
+            closeModal('auth-modal');
+            updateAuthUI();
+            showToast(`เข้าสู่ระบบสำเร็จ! สวัสดีคุณ ${user.username}`, 'success');
+        }
+
+        function logout() {
+            localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+            updateAuthUI();
+            switchView('store');
+            showToast('ออกจากระบบเรียบร้อยแล้ว', 'info');
+        }
+
+        function updateAuthUI(animateBalance = false) {
+            const user = getCurrentUser();
+            const authBtns = document.getElementById('auth-buttons');
+            const userPanel = document.getElementById('user-panel');
+            const navAdmin = document.getElementById('nav-admin');
+            const mobileNavAdmin = document.getElementById('mobile-nav-admin');
+
+            if (user) {
+                authBtns.classList.add('hidden');
+                userPanel.classList.remove('hidden');
+                document.getElementById('nav-username').textContent = user.username;
+                
+                const balEl = document.getElementById('nav-balance');
+                balEl.textContent = `${Number(user.balance).toLocaleString('th-TH', { minimumFractionDigits: 2 })} ฿`;
+                
+                if (animateBalance) {
+                    balEl.classList.remove('animate-balance-up');
+                    void balEl.offsetWidth; // trigger reflow
+                    balEl.classList.add('animate-balance-up');
+                }
+
+                if (user.role === 'admin') {
+                    document.getElementById('nav-role-badge').textContent = 'Administrator';
+                    document.getElementById('nav-role-badge').className = 'text-[10px] font-bold text-amber-400';
+                    navAdmin.classList.remove('hidden');
+                    mobileNavAdmin.classList.remove('hidden');
+                } else {
+                    document.getElementById('nav-role-badge').textContent = 'Member';
+                    document.getElementById('nav-role-badge').className = 'text-[10px] text-cyan-400';
+                    navAdmin.classList.add('hidden');
+                    mobileNavAdmin.classList.add('hidden');
+                }
+            } else {
+                authBtns.classList.remove('hidden');
+                userPanel.classList.add('hidden');
+                navAdmin.classList.add('hidden');
+                mobileNavAdmin.classList.add('hidden');
+            }
+        }
+
+        // ==================== STOREFRONT & INSTANT PURCHASE WITH ANIMATIONS ====================
+        function filterCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                const isAll = cat === 'ALL' && btn.textContent.trim() === 'ทั้งหมด';
+                const isMatch = btn.getAttribute('onclick').includes(`'${cat}'`);
+                if (isAll || isMatch) {
+                    btn.className = 'cat-btn active px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-cyan-500 text-slate-950 transition';
+                } else {
+                    btn.className = 'cat-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white/5 text-slate-300 hover:bg-white/10 transition';
+                }
+            });
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            const searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
+            const products = getProducts();
+
+            const filtered = products.filter(p => {
+                const matchCat = currentCategory === 'ALL' || p.category === currentCategory;
+                const matchSearch = p.title.toLowerCase().includes(searchQuery) || 
+                                    p.desc.toLowerCase().includes(searchQuery) || 
+                                    p.category.toLowerCase().includes(searchQuery);
+                return matchCat && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-16 bg-saifa-card rounded-3xl border border-saifa-border">
+                        <i class="fa-solid fa-terminal text-4xl text-slate-600 mb-3"></i>
+                        <p class="text-slate-400">ไม่พบรายการสคริปต์หรือโปรแกรมที่ค้นหา</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(prod => {
+                const stockCount = prod.keys.length;
+                const inStock = stockCount > 0;
+
+                return `
+                    <div id="card-${prod.id}" class="bg-saifa-card border border-saifa-border electric-border rounded-3xl overflow-hidden flex flex-col justify-between transition-all duration-300 group">
+                        <div>
+                            <!-- Product Header Banner -->
+                            <div class="h-36 bg-gradient-to-br ${prod.gradient || 'from-cyan-600 to-blue-900'} p-5 relative flex flex-col justify-between overflow-hidden">
+                                <div class="flex justify-between items-start z-10 gap-2">
+                                    <span class="px-3 py-1 rounded-lg bg-black/50 backdrop-blur-md text-xs font-bold text-cyan-300 border border-cyan-400/20">
+                                        ${prod.category}
+                                    </span>
+                                    <span class="px-2.5 py-1 rounded-lg text-xs font-bold shrink-0 ${inStock ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30' : 'bg-rose-500/30 text-rose-200 border border-rose-400/30'} backdrop-blur-md">
+                                        ${inStock ? `<i class="fa-solid fa-key mr-1"></i>เหลือ ${stockCount} คีย์` : '<i class="fa-solid fa-xmark-circle mr-1"></i>สินค้าหมด'}
+                                    </span>
+                                </div>
+                                <div class="z-10 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                    <span class="text-[11px] font-medium text-white/90">${prod.status || 'อัปเดตล่าสุด • ปลอดภัย'}</span>
+                                </div>
+                                <!-- Decorative Bolt Icon -->
+                                <i class="fa-solid fa-bolt absolute -right-3 -bottom-4 text-7xl text-white/10 group-hover:scale-110 group-hover:text-cyan-300/20 transition-all duration-300"></i>
+                            </div>
+
+                            <!-- Product Body -->
+                            <div class="p-5 space-y-2">
+                                <h3 class="font-bold text-base sm:text-lg text-white line-clamp-2 leading-snug group-hover:text-cyan-300 transition-colors">${prod.title}</h3>
+                                <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed">${prod.desc}</p>
+                            </div>
+                        </div>
+
+                        <!-- Price & Buy Button -->
+                        <div class="p-5 pt-0 mt-2">
+                            <div class="flex items-center justify-between pt-4 border-t border-saifa-border">
+                                <div>
+                                    <span class="text-[11px] text-slate-400 block">ราคา</span>
+                                    <span class="text-xl font-extrabold text-cyan-300 font-mono">${Number(prod.price).toLocaleString()} ฿</span>
+                                </div>
+                                <button onclick="buyProduct('${prod.id}')" ${!inStock ? 'disabled' : ''} 
+                                    class="px-5 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2
+                                    ${inStock 
+                                        ? 'bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-slate-950 shadow-lg shadow-cyan-500/25 cursor-pointer active:scale-95' 
+                                        : 'bg-slate-800 text-slate-500 cursor-not-allowed'}">
+                                    <i class="fa-solid ${inStock ? 'fa-bolt' : 'fa-ban'}"></i>
+                                    ${inStock ? 'ซื้อสินค้า' : 'สินค้าหมด'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function triggerInsufficientAnimation(cardElement, currentBal, prodPrice, prodTitle) {
+            // 1. สั่นการ์ดสินค้าพร้อมแสงสีแดง
+            if (cardElement) {
+                cardElement.classList.remove('animate-insufficient');
+                void cardElement.offsetWidth;
+                cardElement.classList.add('animate-insufficient');
+                setTimeout(() => cardElement.classList.remove('animate-insufficient'), 900);
+            }
+
+            // 2. เปิด Modal เงินไม่พอพร้อมอนิเมชันสั่น
+            const modal = document.getElementById('insufficient-modal');
+            const modalCard = document.getElementById('insufficient-card');
+            document.getElementById('insufficient-detail').textContent = `ยอดเงินของคุณไม่เพียงพอสำหรับ "${prodTitle}" (ขาดอีก ${(prodPrice - currentBal).toLocaleString()} ฿)`;
+            document.getElementById('insuf-current-bal').textContent = `${Number(currentBal).toLocaleString('th-TH', { minimumFractionDigits: 2 })} ฿`;
+            document.getElementById('insuf-prod-price').textContent = `${Number(prodPrice).toLocaleString('th-TH', { minimumFractionDigits: 2 })} ฿`;
+
+            modal.classList.remove('hidden');
+            modalCard.classList.remove('animate-insufficient');
+            void modalCard.offsetWidth;
+            modalCard.classList.add('animate-insufficient');
+
+            showToast('ยอดเงินไม่เพียงพอ! กรุณาเติมเครดิตก่อนสั่งซื้อ', 'error');
+        }
+
+        function buyProduct(productId) {
+            if (isPurchasing) return;
+
+            // 1. ตรวจสอบการล็อกอิน
+            const currentUser = getCurrentUser();
+            if (!currentUser) {
+                showToast('กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อนสั่งซื้อสินค้า', 'warning');
+                openAuthModal('login');
+                return;
+            }
+
+            // 2. ตรวจสอบสินค้าและสต็อก
+            const products = getProducts();
+            const prodIndex = products.findIndex(p => p.id === productId);
+            if (prodIndex === -1) return;
+
+            const product = products[prodIndex];
+            if (!product.keys || product.keys.length === 0) {
+                showToast('ขออภัย สินค้ารายการนี้หมดสต็อกแล้ว', 'error');
+                renderProducts();
+                return;
+            }
+
+            // 3. ตรวจสอบยอดเงินคงเหลือ (หากไม่พอ แสดงอนิเมชันสั่น + แสงสีแดง)
+            if (currentUser.balance < product.price) {
+                const cardEl = document.getElementById(`card-${productId}`);
+                triggerInsufficientAnimation(cardEl, currentUser.balance, product.price, product.title);
+                return;
+            }
+
+            // 4. แสดงอนิเมชันวงแหวนโหลดสายฟ้าสั้นๆ แล้วส่งมอบคีย์ทันที (Atomic)
+            isPurchasing = true;
+            const procOverlay = document.getElementById('processing-overlay');
+            procOverlay.classList.remove('hidden');
+
+            setTimeout(() => {
+                try {
+                    // โหลดข้อมูลล่าสุดอีกครั้งเพื่อความแม่นยำ (Atomic Check)
+                    const freshUsers = getUsers();
+                    const freshProducts = getProducts();
+                    const uIdx = freshUsers.findIndex(u => u.username === currentUser.username);
+                    const pIdx = freshProducts.findIndex(p => p.id === productId);
+
+                    if (uIdx === -1 || pIdx === -1 || freshProducts[pIdx].keys.length === 0 || freshUsers[uIdx].balance < freshProducts[pIdx].price) {
+                        procOverlay.classList.add('hidden');
+                        isPurchasing = false;
+                        showToast('เกิดข้อผิดพลาดในการตรวจสอบสต็อก กรุณาลองใหม่', 'error');
+                        renderProducts();
+                        return;
+                    }
+
+                    // หักเงิน (ป้องกันเงินติดลบ)
+                    freshUsers[uIdx].balance = Math.max(0, freshUsers[uIdx].balance - freshProducts[pIdx].price);
+                    saveUsers(freshUsers);
+
+                    // ตัดสต็อกคีย์ 1 ชิ้น
+                    const deliveredKey = freshProducts[pIdx].keys.shift();
+                    saveProducts(freshProducts);
+
+                    // บันทึกประวัติการสั่งซื้อ
+                    const orders = getOrders();
+                    const newOrder = {
+                        id: 'SF-' + Date.now().toString().slice(-6),
+                        username: currentUser.username,
+                        category: freshProducts[pIdx].category,
+                        productTitle: freshProducts[pIdx].title,
+                        price: freshProducts[pIdx].price,
+                        credentials: deliveredKey,
+                        timestamp: new Date().toLocaleString('th-TH')
+                    };
+                    orders.unshift(newOrder);
+                    saveOrders(orders);
+
+                    // ปิดหน้าโหลด + ยิงประกายสายฟ้า + แสดง Modal รับคีย์
+                    procOverlay.classList.add('hidden');
+                    isPurchasing = false;
+
+                    updateAuthUI();
+                    renderProducts();
+                    triggerLightningSparks();
+
+                    document.getElementById('delivered-product-name').textContent = `[${newOrder.category}] ${newOrder.productTitle}`;
+                    document.getElementById('delivered-credentials').textContent = deliveredKey;
+                    document.getElementById('delivery-modal').classList.remove('hidden');
+                    showToast('สั่งซื้อสำเร็จ! ส่งมอบ License Key เรียบร้อยแล้ว', 'success');
+                } catch (err) {
+                    procOverlay.classList.add('hidden');
+                    isPurchasing = false;
+                    showToast('เกิดข้อผิดพลาดในการทำรายการ', 'error');
+                }
+            }, 650);
+        }
+
+        function copyDeliveredText() {
+            const text = document.getElementById('delivered-credentials').textContent;
+            copyToClipboard(text);
+        }
+
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('คัดลอก License Key เรียบร้อยแล้ว!', 'success');
+            } catch (err) {
+                showToast('ไม่สามารถคัดลอกอัตโนมัติได้ กรุณาคัดลอกด้วยตนเอง', 'error');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // ==================== TOP-UP SYSTEM ====================
+        function switchTopupTab(tab) {
+            const btnPP = document.getElementById('tab-promptpay');
+            const btnTM = document.getElementById('tab-truemoney');
+            const panelPP = document.getElementById('panel-promptpay');
+            const panelTM = document.getElementById('panel-truemoney');
+
+            if (tab === 'promptpay') {
+                btnPP.className = 'py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-lg transition';
+                btnTM.className = 'py-3 px-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 text-slate-400 hover:text-white hover:bg-white/5 transition';
+                panelPP.classList.remove('hidden');
+                panelTM.classList.add('hidden');
+            } else {
+                btnTM.className = 'py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-lg transition';
+                btnPP.className = 'py-3 px-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 text-slate-400 hover:text-white hover:bg-white/5 transition';
+                panelTM.classList.remove('hidden');
+                panelPP.classList.add('hidden');
+            }
+        }
+
+        function setPromptPayAmount(amount) {
+            document.getElementById('pp-amount').value = amount;
+            updateQRDisplay();
+        }
+
+        function updateQRDisplay() {
+            const val = parseFloat(document.getElementById('pp-amount').value) || 0;
+            document.getElementById('qr-display-amount').textContent = `${val.toLocaleString('th-TH', { minimumFractionDigits: 2 })} ฿`;
+            document.getElementById('qr-ref-code').textContent = `REF: SF-${Math.floor(100000 + Math.random() * 900000)}`;
+        }
+
+        function confirmPromptPayTopup() {
+            const user = getCurrentUser();
+            if (!user) return openAuthModal('login');
+
+            const amount = parseFloat(document.getElementById('pp-amount').value);
+            if (isNaN(amount) || amount < 10) {
+                showToast('กรุณาระบุจำนวนเงินขั้นต่ำ 10 บาท', 'error');
+                return;
+            }
+
+            addBalanceToUser(user.username, amount, 'PromptPay QR', `โอนผ่านพร้อมเพย์จำนวน ${amount.toLocaleString()} บาท`);
+            updateQRDisplay();
+            triggerLightningSparks();
+            showToast(`เติมเงินสำเร็จ! +${amount.toLocaleString()} ฿ เข้าสู่กระเป๋าแล้ว`, 'success');
+        }
+
+        function generateDemoVoucherLink() {
+            const randomHash = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 10);
+            document.getElementById('tm-voucher-url').value = `https://gift.truemoney.com/campaign/?v=${randomHash}`;
+            showToast('สร้างลิงก์ซองอั่งเปาทดสอบแล้ว กดปุ่มยืนยันด้านล่างได้เลย', 'info');
+        }
+
+        function redeemTrueMoneyVoucher() {
+            const user = getCurrentUser();
+            if (!user) return openAuthModal('login');
+
+            const url = document.getElementById('tm-voucher-url').value.trim();
+            if (!url.startsWith('https://gift.truemoney.com/campaign/?v=') || url.length < 42) {
+                showToast('รูปแบบลิงก์ซองอั่งเปาไม่ถูกต้อง (ต้องขึ้นต้นด้วย https://gift.truemoney.com/campaign/?v=...)', 'error');
+                return;
+            }
+
+            // ตรวจสอบซองซ้ำ
+            const topups = getTopups();
+            if (topups.some(t => t.detail.includes(url))) {
+                showToast('ซองอั่งเปานี้ถูกใช้งานไปแล้ว ไม่สามารถเติมซ้ำได้!', 'error');
+                return;
+            }
+
+            // สุ่มยอดเงินสำหรับทดสอบ (50, 100, 150, 300, 500)
+            const demoAmounts = [50, 100, 150, 300, 500];
+            const amount = demoAmounts[Math.floor(Math.random() * demoAmounts.length)];
+
+            addBalanceToUser(user.username, amount, 'TrueMoney อั่งเปา', `รับซองอั่งเปา (${url})`);
+            document.getElementById('tm-voucher-url').value = '';
+            triggerLightningSparks();
+            showToast(`รับซองอั่งเปาสำเร็จ! ได้รับเครดิต +${amount.toLocaleString()} ฿`, 'success');
+        }
+
+        function addBalanceToUser(username, amount, method, detail) {
+            const users = getUsers();
+            const idx = users.findIndex(u => u.username === username);
+            if (idx === -1) return;
+
+            users[idx].balance += amount;
+            saveUsers(users);
+
+            const topups = getTopups();
+            topups.unshift({
+                id: 'TOP-' + Date.now().toString().slice(-6),
+                username: username,
+                method: method,
+                amount: amount,
+                detail: detail,
+                status: 'สำเร็จ',
+                timestamp: new Date().toLocaleString('th-TH')
+            });
+            saveTopups(topups);
+
+            updateAuthUI(true); // เล่นอนิเมชันยอดเงินเด้ง
+            renderUserTopupHistory();
+        }
+
+        function renderUserTopupHistory() {
+            const user = getCurrentUser();
+            if (!user) return;
+            const tbody = document.getElementById('user-topup-history-body');
+            const myTopups = getTopups().filter(t => t.username === user.username);
+
+            if (myTopups.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-500 text-xs">ยังไม่มีประวัติการเติมเงิน</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = myTopups.map(t => `
+                <tr class="hover:bg-white/5 transition">
+                    <td class="py-3 px-4 text-xs text-slate-400">${t.timestamp}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2.5 py-1 rounded-lg text-xs font-semibold ${t.method.includes('PromptPay') ? 'bg-cyan-500/20 text-cyan-300' : 'bg-orange-500/20 text-orange-300'}">
+                            ${t.method}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 text-xs text-slate-300 max-w-xs truncate">${t.detail}</td>
+                    <td class="py-3 px-4 text-center">
+                        <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[11px] font-semibold">สำเร็จ</span>
+                    </td>
+                    <td class="py-3 px-4 text-right font-bold text-emerald-400 font-mono">+${Number(t.amount).toLocaleString()} ฿</td>
+                </tr>
+            `).join('');
+        }
+
+        // ==================== PURCHASE HISTORY ====================
+        function renderPurchaseHistory() {
+            const user = getCurrentUser();
+            if (!user) return;
+            const container = document.getElementById('purchase-history-list');
+            const myOrders = getOrders().filter(o => o.username === user.username);
+
+            if (myOrders.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-saifa-card border border-saifa-border rounded-3xl p-12 text-center space-y-3">
+                        <i class="fa-solid fa-terminal text-4xl text-slate-600"></i>
+                        <p class="text-slate-400 text-sm">คุณยังไม่มีประวัติการสั่งซื้อสคริปต์หรือโปรแกรมเสริม</p>
+                        <button onclick="switchView('store')" class="px-5 py-2.5 rounded-xl bg-cyan-500 text-slate-950 text-xs font-bold">ไปเลือกดูสินค้าเลย</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = myOrders.map(order => `
+                <div class="bg-saifa-card border border-saifa-border rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-xs font-mono text-slate-500">#${order.id}</span>
+                            <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-xs font-bold">${order.category}</span>
+                            <span class="text-xs text-slate-400">${order.timestamp}</span>
+                        </div>
+                        <h4 class="font-bold text-white text-base">${order.productTitle}</h4>
+                        <div class="text-xs text-emerald-400 font-semibold">ชำระแล้ว ${Number(order.price).toLocaleString()} ฿</div>
+                    </div>
+
+                    <div class="bg-[#040711] border border-cyan-500/30 rounded-xl p-3 flex items-center justify-between gap-4 min-w-[270px]">
+                        <div class="overflow-hidden">
+                            <div class="text-[10px] text-slate-400">License Key / Download Link</div>
+                            <code class="text-cyan-300 font-mono font-bold text-xs sm:text-sm block truncate">${order.credentials}</code>
+                        </div>
+                        <button onclick="copyToClipboard('${order.credentials}')" class="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition shrink-0">
+                            <i class="fa-regular fa-copy mr-1"></i> คัดลอกคีย์
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ==================== ADMIN DASHBOARD (RBAC) ====================
+        function switchAdminTab(tab) {
+            ['products', 'users', 'logs'].forEach(t => {
+                document.getElementById(`admin-panel-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`admin-tab-${t}`);
+                btn.className = 'admin-sub-btn px-4 py-2 rounded-xl text-sm font-semibold bg-white/5 text-slate-300 hover:bg-white/10';
+            });
+            document.getElementById(`admin-panel-${tab}`).classList.remove('hidden');
+            document.getElementById(`admin-tab-${tab}`).className = 'admin-sub-btn px-4 py-2 rounded-xl text-sm font-bold bg-cyan-500 text-slate-950';
+        }
+
+        function renderAdminDashboard() {
+            const users = getUsers();
+            const products = getProducts();
+            const orders = getOrders();
+            const topups = getTopups();
+
+            // Update 4 Stats Cards
+            const totalSales = orders.reduce((sum, o) => sum + Number(o.price), 0);
+            const totalStock = products.reduce((sum, p) => sum + p.keys.length, 0);
+
+            document.getElementById('admin-stat-sales').textContent = `${totalSales.toLocaleString('th-TH', { minimumFractionDigits: 2 })} ฿`;
+            document.getElementById('admin-stat-users').textContent = `${users.length} คน`;
+            document.getElementById('admin-stat-orders').textContent = `${orders.length} รายการ`;
+            document.getElementById('admin-stat-stock').textContent = `${totalStock} คีย์`;
+
+            // Render Products Table
+            const prodTbody = document.getElementById('admin-products-tbody');
+            prodTbody.innerHTML = products.map(p => `
+                <tr class="hover:bg-white/5">
+                    <td class="py-3 px-3">
+                        <span class="text-[11px] font-bold text-cyan-400">[${p.category}]</span>
+                        <div class="font-medium text-white text-xs sm:text-sm">${p.title}</div>
+                    </td>
+                    <td class="py-3 px-3 font-bold text-cyan-300 font-mono">${Number(p.price).toLocaleString()} ฿</td>
+                    <td class="py-3 px-3">
+                        <span class="px-2 py-1 rounded-lg text-xs font-bold ${p.keys.length > 0 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">
+                            ${p.keys.length} คีย์
+                        </span>
+                    </td>
+                    <td class="py-3 px-3 text-right space-x-1 whitespace-nowrap">
+                        <button onclick="openAddStockModal('${p.id}')" class="px-2.5 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/40 text-cyan-300 text-xs font-semibold transition" title="เติมคีย์เพิ่ม">
+                            <i class="fa-solid fa-plus"></i> เติมคีย์
+                        </button>
+                        <button onclick="deleteProduct('${p.id}')" class="px-2.5 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/40 text-rose-300 text-xs font-semibold transition" title="ลบสินค้า">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Render Users Table
+            const usersTbody = document.getElementById('admin-users-tbody');
+            usersTbody.innerHTML = users.map(u => `
+                <tr class="hover:bg-white/5">
+                    <td class="py-3 px-4 font-semibold text-white">${u.username}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${u.role === 'admin' ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-800 text-slate-300'}">
+                            ${u.role.toUpperCase()}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 font-bold text-emerald-400 font-mono">${Number(u.balance).toLocaleString('th-TH', { minimumFractionDigits: 2 })} ฿</td>
+                    <td class="py-3 px-4 text-right space-x-2 whitespace-nowrap">
+                        <button onclick="openEditBalanceModal('${u.username}', ${u.balance})" class="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 text-xs font-semibold transition">
+                            <i class="fa-solid fa-coins mr-1"></i> ปรับเครดิต
+                        </button>
+                        ${u.username !== 'admin' ? `
+                            <button onclick="toggleUserRole('${u.username}')" class="px-3 py-1.5 rounded-lg bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 text-xs font-semibold transition">
+                                สลับสิทธิ์
+                            </button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `).join('');
+
+            // Render All Orders Log
+            document.getElementById('admin-orders-tbody').innerHTML = orders.length ? orders.map(o => `
+                <tr>
+                    <td class="py-2 px-3 font-semibold text-cyan-300">${o.username}</td>
+                    <td class="py-2 px-3 text-slate-300 truncate max-w-[140px]">${o.productTitle}</td>
+                    <td class="py-2 px-3 font-mono text-sky-300 truncate max-w-[130px]">${o.credentials}</td>
+                    <td class="py-2 px-3 text-right font-bold text-emerald-400 font-mono">${o.price} ฿</td>
+                </tr>
+            `).join('') : `<tr><td colspan="4" class="py-4 text-center text-slate-500">ยังไม่มีรายการสั่งซื้อ</td></tr>`;
+
+            // Render All Topups Log
+            document.getElementById('admin-topups-tbody').innerHTML = topups.length ? topups.map(t => `
+                <tr>
+                    <td class="py-2 px-3 font-semibold text-cyan-300">${t.username}</td>
+                    <td class="py-2 px-3 text-slate-300">${t.method}</td>
+                    <td class="py-2 px-3 text-slate-400">${t.timestamp}</td>
+                    <td class="py-2 px-3 text-right font-bold text-emerald-400 font-mono">+${t.amount} ฿</td>
+                </tr>
+            `).join('') : `<tr><td colspan="4" class="py-4 text-center text-slate-500">ยังไม่มีรายการเติมเงิน</td></tr>`;
+        }
+
+        function handleAdminAddProduct(e) {
+            e.preventDefault();
+            const category = document.getElementById('adm-prod-category').value;
+            const title = document.getElementById('adm-prod-title').value.trim();
+            const desc = document.getElementById('adm-prod-desc').value.trim();
+            const price = parseFloat(document.getElementById('adm-prod-price').value);
+            const rawKeys = document.getElementById('adm-prod-keys').value;
+
+            const keys = rawKeys.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+            if (keys.length === 0) {
+                showToast('กรุณากรอก License Key หรือลิงก์สินค้าอย่างน้อย 1 บรรทัด', 'error');
+                return;
+            }
+
+            const gradients = {
+                'Auto Farm Script': 'from-cyan-500 via-sky-600 to-blue-900',
+                'Aimbot & ESP': 'from-blue-600 via-indigo-700 to-slate-900',
+                'Executor': 'from-sky-500 via-cyan-700 to-slate-950',
+                'Macro & Bypass': 'from-teal-500 via-emerald-700 to-slate-900'
+            };
+
+            const products = getProducts();
+            products.unshift({
+                id: 'sf_prod_' + Date.now(),
+                category,
+                title,
+                desc,
+                status: 'อัปเดตล่าสุด • ปลอดภัย',
+                price,
+                gradient: gradients[category] || 'from-cyan-600 to-blue-900',
+                keys
+            });
+            saveProducts(products);
+
+            e.target.reset();
+            renderProducts();
+            renderAdminDashboard();
+            showToast(`เพิ่มสินค้า "${title}" พร้อมสต็อก ${keys.length} คีย์สำเร็จ!`, 'success');
+        }
+
+        function openAddStockModal(prodId) {
+            const prod = getProducts().find(p => p.id === prodId);
+            if (!prod) return;
+            document.getElementById('stock-modal-prod-id').value = prod.id;
+            document.getElementById('stock-modal-prod-title').textContent = `[${prod.category}] ${prod.title}`;
+            document.getElementById('stock-modal-textarea').value = '';
+            document.getElementById('add-stock-modal').classList.remove('hidden');
+        }
+
+        function confirmAddStock() {
+            const prodId = document.getElementById('stock-modal-prod-id').value;
+            const raw = document.getElementById('stock-modal-textarea').value;
+            const newKeys = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+            if (newKeys.length === 0) {
+                showToast('กรุณากรอกรายการคีย์อย่างน้อย 1 บรรทัด', 'error');
+                return;
+            }
+
+            const products = getProducts();
+            const idx = products.findIndex(p => p.id === prodId);
+            if (idx !== -1) {
+                products[idx].keys.push(...newKeys);
+                saveProducts(products);
+                closeModal('add-stock-modal');
+                renderProducts();
+                renderAdminDashboard();
+                showToast(`เติมสต็อกสำเร็จ +${newKeys.length} คีย์`, 'success');
+            }
+        }
+
+        function deleteProduct(prodId) {
+            const products = getProducts().filter(p => p.id !== prodId);
+            saveProducts(products);
+            renderProducts();
+            renderAdminDashboard();
+            showToast('ลบรายการสินค้าออกจากระบบแล้ว', 'info');
+        }
+
+        function openEditBalanceModal(username, currentBalance) {
+            document.getElementById('edit-bal-username').textContent = username;
+            document.getElementById('edit-bal-amount').value = currentBalance;
+            document.getElementById('edit-balance-modal').classList.remove('hidden');
+        }
+
+        function confirmEditUserBalance() {
+            const username = document.getElementById('edit-bal-username').textContent;
+            const newBal = parseFloat(document.getElementById('edit-bal-amount').value);
+
+            if (isNaN(newBal) || newBal < 0) {
+                showToast('กรุณาระบุยอดเงินที่ถูกต้อง (0 ขึ้นไป)', 'error');
+                return;
+            }
+
+            const users = getUsers();
+            const idx = users.findIndex(u => u.username === username);
+            if (idx !== -1) {
+                users[idx].balance = newBal;
+                saveUsers(users);
+                closeModal('edit-balance-modal');
+                updateAuthUI(true);
+                renderAdminDashboard();
+                showToast(`อัปเดตเครดิตของ ${username} เป็น ${newBal.toLocaleString()} ฿ แล้ว`, 'success');
+            }
+        }
+
+        function toggleUserRole(username) {
+            const users = getUsers();
+            const idx = users.findIndex(u => u.username === username);
+            if (idx !== -1) {
+                users[idx].role = users[idx].role === 'admin' ? 'member' : 'admin';
+                saveUsers(users);
+                renderAdminDashboard();
+                showToast(`เปลี่ยนสิทธิ์ของ ${username} เป็น ${users[idx].role.toUpperCase()} แล้ว`, 'info');
+            }
+        }
+    </script>
+</body>
+</html>
